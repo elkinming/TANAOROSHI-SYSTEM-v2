@@ -1,0 +1,29 @@
+stages:
+  - test
+  - build_push_tst
+  - deploy_tst
+
+variables:
+  no_proxy: 169.254.169.254
+  AWS_DEFAULT_REGION: ap-northeast-1
+
+
+.common_rules: &common_rules
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "api"
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+
+include:
+  - local: ci/tst.yml # テスト環境デプロイ先定義ファイル
+  - project: rap_infra/cicd/cicdtool # UIテスト用
+    ref: main
+    file: templates/test_ui.yaml
+  - project: rap_infra/cicd/cicdtool # UI API スクリプト
+    ref: main
+    file: templates/scripts_ui_api.yaml
+  - project: rap_infra/cicd/cicdtool # UI API 共通ジョブ(テスト環境用)
+    ref: main
+    file: templates/jobs_ui_api_tst.yaml

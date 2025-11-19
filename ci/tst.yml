@@ -1,0 +1,20 @@
+.variables_tst: &variables_tst
+  variables:
+    BUILD_TARGET: tst
+    PROJECT_NAME: frontend-ui-001
+    http_proxy: http://10.76.226.10:3128
+    https_proxy: http://10.76.226.10:3128
+    no_proxy: 169.254.169.254
+    CLUSTER: rap-tst-j0503015-ecs-cluster
+    TASK_FAMILY: rap-tst-j0503015-frontend-ui-001
+    CONTAINER_NAME: rap-tst-j0503015-frontend-ui-001
+    CONTAINER_PORT: 8080
+    TARGET_GROUP_ARN: arn:aws:elasticloadbalancing:ap-northeast-1:010438469459:targetgroup/tst-j0503015-frontend-ui-001/27490d12fe4986cb
+    ECR_BASE_PATH: 010438469459.dkr.ecr.ap-northeast-1.amazonaws.com
+    ECR_PATH: 010438469459.dkr.ecr.ap-northeast-1.amazonaws.com/rap-tst-j0503015-frontend-ui-001
+    SUBNET: subnet-0a3cdaeb871813033,subnet-0b3526e11ea597423
+    SG: sg-03a504510ca800d6a,sg-0f56c4032c5f67c64
+    ALARM_SCALE_IN: rap-tst-j0503015-alarm-ecs-cpu-low-frontend-ui-001
+    ALARM_SCALE_OUT: rap-tst-j0503015-alarm-ecs-cpu-high-frontend-ui-001
+    APP_ROOT_PATH: /j0503015/ui/001/
+

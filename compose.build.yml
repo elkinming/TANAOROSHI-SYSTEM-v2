@@ -1,0 +1,12 @@
+name: appcommonapi_build
+
+services:
+  backend:
+    image: $ECR_PATH:$TAG
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - http_proxy=$http_proxy
+        - https_proxy=$http_proxy
+        - APP_ROOT_PATH=$APP_ROOT_PATH
