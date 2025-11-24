@@ -1,6 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from '@umijs/max';
+import { adaptInventoryItemToBackend, adaptInventoryResponse } from './inventoryAdapters';
 
 const URL = "/j0503015/batch/001"
 
@@ -39,38 +40,49 @@ export async function getAllInventory(
   params: {
     previousFactoryCode?: string;
     productFactoryCode?: string;
+    searchKeyword?: string;
   },
   options?: { [key: string]: any },
 ) {
-  // return request<API.InventoryList>(`${URL}/inventory/record-list`, {
-  return request<API.InventoryList>(`/inventory/record-list`, {
+
+  const backendParams = {
+    previous_factory_code: params?.previousFactoryCode,
+    product_factory_code: params?.productFactoryCode,
+    search_keyword: params?.searchKeyword,
+  }
+
+  const response = await request<API.BackendInventoryResponse>(`/inventory/record-list`, {
     method: 'GET',
-    params: {
-      ...params,
-    },
+    params: backendParams,
     ...(options || {}),
   });
+
+  return adaptInventoryResponse(response);
 }
 
-export async function addInventoryRecord(options?: { [key: string]: any }) {
+export async function addInventoryRecord(options?: API.InventoryListItem) {
   // return request<API.InventoryListItem>(`${URL}/inventory/record`, {
+  const backendData = options ? adaptInventoryItemToBackend(options) : {};
+
   return request<API.InventoryListItem>(`/inventory/record`, {
     method: 'POST',
     data: {
       method: 'update',
-      ...(options || {}),
+      ...backendData,
     },
     requestType: 'json',
   });
 }
 
-export async function updateInventoryRecord(options?: { [key: string]: any }) {
+export async function updateInventoryRecord(options?: API.InventoryListItem) {
   // return request<API.InventoryListItem>(`${URL}/inventory/record`, {
+  const backendData = options ? adaptInventoryItemToBackend(options) : {};
+
   return request<API.InventoryListItem>(`/inventory/record`, {
     method: 'PUT',
     data: {
       method: 'update',
-      ...(options || {}),
+      ...backendData,
     },
     requestType: 'json',
   });
@@ -78,40 +90,42 @@ export async function updateInventoryRecord(options?: { [key: string]: any }) {
 
 // Function for inserting a batch of records.
 // Body: record[]
-export async function addInventoryRecordBatch(options?: { [key: string]: any }) {
+export async function addInventoryRecordBatch(options?: API.InventoryListItem[]) {
   // return request<API.InventoryListItem[]>(`${URL}/inventory/record-batch`, {
+  const backendData = (options || []).map(item => adaptInventoryItemToBackend(item));
+
   return request<API.InventoryListItem[]>(`/inventory/record-batch`, {
     method: 'POST',
-    data: (options || []),
+    data: backendData,
     requestType: 'json',
   });
 }
 
 // Function for updating a batch of records.
 // Body: record[]
-export async function updateInventoryRecordBatch(options?: { [key: string]: any }) {
-  // return request<API.InventoryListItem[]>(`${URL}/inventory/record-batch`, {
+export async function updateInventoryRecordBatch(options?: API.InventoryListItem[]) {
+  const backendData = (options || []).map(item => adaptInventoryItemToBackend(item));
   return request<API.InventoryListItem[]>(`/inventory/record/multiple`, {
     method: 'PUT',
-    data: (options || []),
+    data: backendData,
     requestType: 'json',
   });
 }
 
-export async function insertInventoryRecordArray(options?: { [key: string]: any }) {
-  // return request<API.InventoryListItem[]>(`${URL}/inventory/record-batch`, {
+export async function insertInventoryRecordArray(options?: API.InventoryListItem[]) {
+  const backendData = (options || []).map(item => adaptInventoryItemToBackend(item));
   return request<API.InventoryListItem[]>(`/inventory/record/multiple`, {
     method: 'POST',
-    data: (options || []),
+    data: backendData,
     requestType: 'json',
   });
 }
 
-export async function deleteInventoryRecordArray(options?: { [key: string]: any }) {
-  // return request<API.InventoryListItem[]>(`${URL}/inventory/record-batch`, {
+export async function deleteInventoryRecordArray(options?: API.InventoryListItem[]) {
+  const backendData = (options || []).map(item => adaptInventoryItemToBackend(item));
   return request<string[]>(`/inventory/record/multiple`, {
     method: 'DELETE',
-    data: (options || []),
+    data: backendData,
     requestType: 'json',
   });
 }

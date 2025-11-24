@@ -56,6 +56,33 @@ declare namespace API {
     success?: boolean;
   };
 
+  // Backend response type for inventory list
+  type BackendInventoryResponse = {
+    code: number;
+    message: string;
+    data: {
+      items: Array<{
+        company_code?: string;
+        previous_factory_code?: string;
+        product_factory_code?: string;
+        start_operation_date?: string;
+        end_operation_date?: string;
+        previous_factory_name?: string;
+        product_factory_name?: string;
+        material_department_code?: string;
+        environmental_information?: string;
+        authentication_flag?: string;
+        group_corporate_code?: string;
+        integration_pattern?: string;
+        hulftid?: string;
+      }>;
+      total: number | null;
+      skip: number;
+      limit: number;
+    };
+    error: any;
+  };
+
   type InventoryListItem = {
     id?: string;
     companyCode?: string;
@@ -72,6 +99,23 @@ declare namespace API {
     integrationPattern?: string;
     hulftid?: string;
     // searchKeyword?: string;
+  };
+
+  type BackendInventoryListItem = {
+    id?: string;
+    company_code?: string;
+    previous_factory_code?: string;
+    product_factory_code?: string;
+    start_operation_date?: string;
+    end_operation_date?: string;
+    previous_factory_name?: string;
+    product_factory_name?: string;
+    material_department_code?: string;
+    environmental_information?: string;
+    authentication_flag?: string;
+    group_corporate_code?: string;
+    integration_pattern?: string;
+    hulftid?: string;
   };
 
   type InventoryList = {

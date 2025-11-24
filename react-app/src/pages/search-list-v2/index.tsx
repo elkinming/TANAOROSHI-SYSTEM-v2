@@ -16,6 +16,7 @@ import * as XLSX from 'xlsx';
 import PageContent from '@/components/PageContent';
 import PageTitle from '@/components/PageTitle';
 import { addInventoryRecordBatch, deleteInventoryRecordArray, getAllInventory, insertInventoryRecordArray, updateInventoryRecordBatch } from '@/services/ant-design-pro/api';
+import { adaptBackendInventoryItemToFrontend } from '@/services/ant-design-pro/inventoryAdapters';
 import K from '@/services/ant-design-pro/constants';
 import CreateForm from './components/CreateForm';
 import UpdateForm from './components/UpdateForm';
@@ -70,7 +71,7 @@ const SearchListV2: React.FC = () => {
     setIsEditing(false);
     setIsInserting(false);
     setIsDeleting(false);
-    setHideRowEditButton(false);   
+    setHideRowEditButton(false);
     setShowRowSelection(false);
   };
 
@@ -79,6 +80,7 @@ const SearchListV2: React.FC = () => {
     initData();
     const response = await getAllInventory(params);
     // console.log(response);
+
     setDataSource(response.data!);
     setTotal(response.data?.length ? response.data?.length : 0)
     return response
@@ -93,6 +95,38 @@ const SearchListV2: React.FC = () => {
     return response
   }
 
+  // Helper function to match records based on all fields except id
+  const matchRecord = (record1: API.InventoryListItem, record2: API.InventoryListItem): boolean => {
+    return (
+      record1.companyCode === record2.companyCode &&
+      record1.previousFactoryCode === record2.previousFactoryCode &&
+      record1.productFactoryCode === record2.productFactoryCode &&
+      record1.startOperationDate === record2.startOperationDate &&
+      record1.endOperationDate === record2.endOperationDate
+    );
+  };
+
+  // Helper function to add IDs to error records by matching with dataSource
+  const addIdsToErrorRecords = (errorItems: API.CommitRecordError[]): API.CommitRecordError[] => {
+    return errorItems.map((errorItem) => {
+      const matchedRecord = dataSource.find((dsRecord) =>
+        matchRecord(errorItem.record, dsRecord)
+      );
+
+      if (matchedRecord && matchedRecord.id) {
+        return {
+          ...errorItem,
+          record: {
+            ...errorItem.record,
+            id: matchedRecord.id,
+          },
+        };
+      }
+
+      return errorItem;
+    });
+  };
+
   const updateDataSource = async () => {
     try {
       const response = await updateInventoryRecordBatch(editDataSource);
@@ -102,9 +136,17 @@ const SearchListV2: React.FC = () => {
 
     } catch (e: any) {
       console.log(e.response.data);
-      const rawErrorItems = e.response.data.errorList as API.CommitRecordError[];
-      const errorItems = rawErrorItems.filter(item => item.level === 'E' || item.level === 'W');
-      setErrorResults(getUserErrors(errorItems));
+      const rawErrorItems = e.response.data.error.details.error_records as API.CommitRecordError[];
+      // Convert BackendInventoryListItem records to InventoryListItem
+      const convertedErrorItems: API.CommitRecordError[] = rawErrorItems.map((errorItem) => ({
+        ...errorItem,
+        record: adaptBackendInventoryItemToFrontend(errorItem.record as API.BackendInventoryListItem),
+      }));
+      const errorItems = convertedErrorItems.filter(item => item.level === 'E' || item.level === 'W');
+      const errorItemsWithIds = addIdsToErrorRecords(errorItems);
+      setErrorResults(getUserErrors(errorItemsWithIds));
+      console.log(errorItems);
+      console.log(errorItemsWithIds);
       messageApi.error(<FormattedMessage id="msg.error.updateFailed" />);
     }
   }
@@ -118,9 +160,17 @@ const SearchListV2: React.FC = () => {
 
     } catch (e: any) {
       console.log(e.response.data);
-      const rawErrorItems = e.response.data.errorList as API.CommitRecordError[];
-      const errorItems = rawErrorItems.filter(item => item.level === 'E' || item.level === 'W');
-      setErrorResults(getUserErrors(errorItems));
+      const rawErrorItems = e.response.data.error.details.error_records as API.CommitRecordError[];
+      // Convert BackendInventoryListItem records to InventoryListItem
+      const convertedErrorItems: API.CommitRecordError[] = rawErrorItems.map((errorItem) => ({
+        ...errorItem,
+        record: adaptBackendInventoryItemToFrontend(errorItem.record as API.BackendInventoryListItem),
+      }));
+      const errorItems = convertedErrorItems.filter(item => item.level === 'E' || item.level === 'W');
+      const errorItemsWithIds = addIdsToErrorRecords(errorItems);
+      setErrorResults(getUserErrors(errorItemsWithIds));
+      console.log(errorItems);
+      console.log(errorItemsWithIds);
       messageApi.error(<FormattedMessage id="msg.error.insertFailed" />);
     }
   }
@@ -136,9 +186,15 @@ const SearchListV2: React.FC = () => {
 
     } catch (e: any) {
       console.log(e.response.data);
-      const rawErrorItems = e.response.data.errorList as API.CommitRecordError[];
-      const errorItems = rawErrorItems.filter(item => item.level === 'E' || item.level === 'W');
-      setErrorResults(getUserErrors(errorItems));
+      const rawErrorItems = e.response.data.error.details.error_records as API.CommitRecordError[];
+      // Convert BackendInventoryListItem records to InventoryListItem
+      const convertedErrorItems: API.CommitRecordError[] = rawErrorItems.map((errorItem) => ({
+        ...errorItem,
+        record: adaptBackendInventoryItemToFrontend(errorItem.record as API.BackendInventoryListItem),
+      }));
+      const errorItems = convertedErrorItems.filter(item => item.level === 'E' || item.level === 'W');
+      const errorItemsWithIds = addIdsToErrorRecords(errorItems);
+      setErrorResults(getUserErrors(errorItemsWithIds));
       messageApi.error(<FormattedMessage id="msg.error.insertFailed" />);
     }
   }
@@ -148,14 +204,14 @@ const SearchListV2: React.FC = () => {
     const userErrorItems: API.CommitRecordError[] = [];
     const standardErrors = [
       { code: '0', msg:'msg.error.Exception'},
-      { code: '23505', msg:'msg.error.primaryKeyDuplicated'},
-      { code: '22001', msg:'msg.error.fieldWrongSize'},
+      { code: 'PG23505', msg:'msg.error.primaryKeyDuplicated'},
+      { code: 'PG22001', msg:'msg.error.fieldWrongSize'},
     ]
     errorItems.forEach((errorItem) => {
       const record = editDataSource.find((element) => {
         if(element.id == errorItem.record.id){
           return true;
-        } 
+        }
         return false;
       })
       const newErrorItem: API.CommitRecordError = {
@@ -168,7 +224,7 @@ const SearchListV2: React.FC = () => {
       standardErrors.forEach((standardError) => {
         if(standardError.code == errorItem.code){
           newErrorItem.message = standardError.msg;
-        }        
+        }
       })
       userErrorItems.push(newErrorItem);
     })
@@ -176,7 +232,7 @@ const SearchListV2: React.FC = () => {
     return userErrorItems;
   }
 
-  
+
   // Effect for loading the data for the first time
   useEffect(() => {
     getDataSource();
@@ -187,7 +243,7 @@ const SearchListV2: React.FC = () => {
     console.log(dataSource);
     if (dataSource.length === 0) return;
 
-    // Function for mapping between DB Column Names and Excel Column Names 
+    // Function for mapping between DB Column Names and Excel Column Names
     const mappedData = dataSource.map((row: any) => {
       const newRow: Record<string, any> = {};
       Object.keys(K.headerMapDownload).forEach((key) => {
@@ -212,7 +268,7 @@ const SearchListV2: React.FC = () => {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: '' });
-        
+
         // Function for mapping between Excel Column Names and DB Column Names
         const normalizedData = jsonData.map((row: any) => {
           const newRow: Record<string, any> = {};
@@ -232,7 +288,7 @@ const SearchListV2: React.FC = () => {
       } catch (error) {
         message.error('アップロードできません。');
       }
-      
+
     };
     reader.readAsArrayBuffer(file);
     return false;
@@ -292,7 +348,7 @@ const SearchListV2: React.FC = () => {
         }
       },
     },
-  
+
   });
 
   const enableMultiUpdate = () => {
@@ -308,21 +364,21 @@ const SearchListV2: React.FC = () => {
   const enableMultiInsert = () => {
     setEditDataSource([]);
     setEditableRowKeys([]);
-    setIsEditing(false);   
+    setIsEditing(false);
     setIsDeleting(false);
     setIsInserting(true);
-    setHideRowEditButton(true);   
+    setHideRowEditButton(true);
     setAllowEditPkFields(true);
   }
 
   const enableMultiDelete = () => {
     setEditDataSource([]);
     setEditableRowKeys([]);
-    setIsEditing(false);   
+    setIsEditing(false);
     setIsInserting(false);
     setAllowEditPkFields(false);
     setIsDeleting(true);
-    setHideRowEditButton(true);   
+    setHideRowEditButton(true);
     setShowRowSelection(true);
   }
 
@@ -335,8 +391,8 @@ const SearchListV2: React.FC = () => {
     setIsInserting(false);
     setIsEditing(false);
     setIsDeleting(false);
-    setHideRowEditButton(false); 
-    setAllowEditPkFields(false);  
+    setHideRowEditButton(false);
+    setAllowEditPkFields(false);
     setShowRowSelection(false);
     refreshDataSource();
   }
@@ -717,7 +773,7 @@ const SearchListV2: React.FC = () => {
       search: true,
       hideInTable: true,
       colSize: 2
-    },    
+    },
 
   ];
 
@@ -757,7 +813,7 @@ const SearchListV2: React.FC = () => {
                       }}
                     >
                       <FormattedMessage id={message} values={{value: item.detail}} />
-                      
+
                     </li>
                   );
                 })}
@@ -809,26 +865,26 @@ const SearchListV2: React.FC = () => {
                 <Button onClick={enableMultiDelete}><FormattedMessage id="pages.searchList.batchDeleteButton"/></Button>
               </Space>
             ),
-            (isEditing && 
+            (isEditing &&
               <Space size="small">
                 <Button onClick={updateDataSource} type='primary'><FormattedMessage id="pages.searchList.saveButton"/></Button>
                 <Button onClick={cancelMultipleUpdate}><FormattedMessage id="pages.searchList.cancelButton"/></Button>
               </Space>
             ),
-            (isInserting && 
+            (isInserting &&
               <Space size="small">
                 <Button onClick={saveNewRecordsOnDataSource} type='primary'><FormattedMessage id="pages.searchList.saveButton"/></Button>
                 <Button onClick={cancelMultipleUpdate}><FormattedMessage id="pages.searchList.cancelButton"/></Button>
                 <Button onClick={addNewRecordRow}><FormattedMessage id="pages.searchList.addRecordButton"/></Button>
               </Space>
             ),
-            (isDeleting && 
+            (isDeleting &&
               <Space size="small">
                 <Button onClick={deleteRecordsInDataSource} color="danger" variant="solid"><FormattedMessage id="pages.searchList.deleteButton"/></Button>
                 <Button onClick={cancelMultipleUpdate}><FormattedMessage id="pages.searchList.cancelButton"/></Button>
               </Space>
             )
-            
+
           ]}
           // Add class for customized toolbar CSS
           className='custom-toolbar'
