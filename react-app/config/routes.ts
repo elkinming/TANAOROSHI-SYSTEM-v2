@@ -27,7 +27,7 @@ export default [
     name: 'welcome',
     icon: 'smile',
     component: './Welcome',
-    hideInMenu: true 
+    hideInMenu: true
   },
   {
     path: '/search',
@@ -46,6 +46,11 @@ export default [
         path: '/search/item-v2',
         name: 'item-v2',
         component: './search-list-v2',
+      },
+      {
+        path: '/search/user',
+        name: 'user-master',
+        component: './user-master',
       },
     ],
   },

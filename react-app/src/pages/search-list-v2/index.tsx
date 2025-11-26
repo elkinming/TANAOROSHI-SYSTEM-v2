@@ -40,6 +40,7 @@ interface DataType {
 type DataIndex = keyof DataType;
 
 const SearchListV2: React.FC = () => {
+  const intl = useIntl();
   const actionRef = useRef<ActionType | null>(null);
   const formRef = useRef<any>(null);
 
@@ -255,8 +256,8 @@ const SearchListV2: React.FC = () => {
 
     const worksheet = XLSX.utils.json_to_sheet(mappedData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, '棚卸・工場');
-    XLSX.writeFile(workbook, '棚卸・工場.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, intl.formatMessage({ id: 'pages.searchList.excelSheetName' }));
+    XLSX.writeFile(workbook, intl.formatMessage({ id: 'pages.searchList.excelFileName' }));
   }
 
   const uploadData = (file: File) => {
@@ -280,13 +281,13 @@ const SearchListV2: React.FC = () => {
         });
 
         await addInventoryRecordBatch(normalizedData);
-        message.success('アップロードされました。');
+        message.success(intl.formatMessage({ id: 'pages.searchList.uploadSuccess' }));
         setTimeout(() => {
           actionRef.current?.reload?.();
         }, 1000);
 
       } catch (error) {
-        message.error('アップロードできません。');
+        message.error(intl.formatMessage({ id: 'pages.searchList.uploadError' }));
       }
 
     };
@@ -306,7 +307,7 @@ const SearchListV2: React.FC = () => {
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
-          placeholder={`入力してください`}
+          placeholder={intl.formatMessage({ id: 'pages.searchList.searchPlaceholder' })}
           value={selectedKeys[0]}
           onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(confirm)}
@@ -318,7 +319,7 @@ const SearchListV2: React.FC = () => {
             size="small"
             style={{ width: 90 }}
           >
-            クリア
+            {intl.formatMessage({ id: 'pages.searchList.clearButton' })}
           </Button>
 
           <Button
@@ -328,7 +329,7 @@ const SearchListV2: React.FC = () => {
             size="small"
             style={{ width: 90 }}
           >
-            検索
+            {intl.formatMessage({ id: 'pages.searchList.searchButton' })}
           </Button>
         </Space>
       </div>
@@ -454,7 +455,7 @@ const SearchListV2: React.FC = () => {
       hideInTable: hideRowEditButton
     },
     {
-      title: "会社コード",
+      title: intl.formatMessage({ id: 'pages.searchList.columnCompanyCode' }),
       dataIndex: 'companyCode',
       search: false,
       valueType: "text",
@@ -481,7 +482,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('companyCode') as any,
     },
     {
-      title: "従来工場コード",
+      title: intl.formatMessage({ id: 'pages.searchList.columnPreviousFactoryCode' }),
       dataIndex: 'previousFactoryCode',
       valueType: "text",
       editable: allowEditPkFields,
@@ -507,7 +508,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('previousFactoryCode') as any,
     },
     {
-      title: "商品工場コード",
+      title: intl.formatMessage({ id: 'pages.searchList.columnProductFactoryCode' }),
       dataIndex: 'productFactoryCode',
       editable: allowEditPkFields,
       sorter: (a, b) => {
@@ -532,7 +533,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('productFactoryCode') as any,
     },
     {
-      title: "運用開始日",
+      title: intl.formatMessage({ id: 'pages.searchList.columnStartOperationDate' }),
       dataIndex: 'startOperationDate',
       valueType: 'date',
       search: false,
@@ -549,7 +550,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('startOperationDate') as any,
     },
     {
-      title: "運用終了日",
+      title: intl.formatMessage({ id: 'pages.searchList.columnEndOperationDate' }),
       dataIndex: 'endOperationDate',
       valueType: 'date',
       search: false,
@@ -566,7 +567,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('endOperationDate') as any,
     },
     {
-      title: "従来工場名",
+      title: intl.formatMessage({ id: 'pages.searchList.columnPreviousFactoryName' }),
       dataIndex: 'previousFactoryName',
       search: false,
       sorter: (a, b) => {
@@ -592,7 +593,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('previousFactoryName') as any,
     },
     {
-      title: "商品工場名",
+      title: intl.formatMessage({ id: 'pages.searchList.columnProductFactoryName' }),
       dataIndex: 'productFactoryName',
       search: false,
       sorter: (a, b) => {
@@ -618,7 +619,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('productFactoryName') as any,
     },
     {
-      title: "マテリアル部署コード",
+      title: intl.formatMessage({ id: 'pages.searchList.columnMaterialDepartmentCode' }),
       dataIndex: 'materialDepartmentCode',
       search: false,
       sorter: (a, b) => {
@@ -643,7 +644,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('materialDepartmentCode') as any,
     },
     {
-      title: "環境情報",
+      title: intl.formatMessage({ id: 'pages.searchList.columnEnvironmentalInformation' }),
       dataIndex: 'environmentalInformation',
       search: false,
       sorter: (a, b) => {
@@ -668,7 +669,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('environmentalInformation') as any,
     },
     {
-      title: "認証フラグ",
+      title: intl.formatMessage({ id: 'pages.searchList.columnAuthenticationFlag' }),
       dataIndex: 'authenticationFlag',
       search: false,
       sorter: (a, b) => {
@@ -693,7 +694,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('authenticationFlag') as any,
     },
     {
-      title: "企業コード",
+      title: intl.formatMessage({ id: 'pages.searchList.columnGroupCorporateCode' }),
       dataIndex: 'groupCorporateCode',
       search: false,
       sorter: (a, b) => {
@@ -718,7 +719,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('groupCorporateCode') as any,
     },
     {
-      title: "連携パターン",
+      title: intl.formatMessage({ id: 'pages.searchList.columnIntegrationPattern' }),
       dataIndex: 'integrationPattern',
       search: false,
       sorter: (a, b) => {
@@ -743,7 +744,7 @@ const SearchListV2: React.FC = () => {
       ...getColumnSearchProps('integrationPattern') as any,
     },
     {
-      title: "HULFTID",
+      title: intl.formatMessage({ id: 'pages.searchList.columnHulftid' }),
       dataIndex: 'hulftid',
       search: false,
       sorter: (a, b) => {
@@ -828,7 +829,7 @@ const SearchListV2: React.FC = () => {
           size="small"
           search={{
             labelWidth: 120,
-            resetText:"クリア",
+            resetText: intl.formatMessage({ id: 'pages.searchList.clearButton' }),
             collapseRender:false,
             defaultCollapsed:false
           }}
@@ -856,9 +857,9 @@ const SearchListV2: React.FC = () => {
             (!isEditing && !isInserting && !isDeleting &&
               <Space size="small">
                 <CreateForm key="create" reload={actionRef.current?.reload} />
-                <Button onClick={downloadData}>ダウンロード</Button>
+                <Button onClick={downloadData}>{intl.formatMessage({ id: 'pages.searchList.downloadButton' })}</Button>
                 <Upload accept=".xlsx, .xls" beforeUpload={uploadData} showUploadList={false}>
-                  <Button>アップロード</Button>
+                  <Button>{intl.formatMessage({ id: 'pages.searchList.uploadButton' })}</Button>
                 </Upload>
                 <Button onClick={enableMultiUpdate}><FormattedMessage id="pages.searchList.batchUpdatingButton"/></Button>
                 <Button onClick={enableMultiInsert}><FormattedMessage id="pages.searchList.batchInsertionButton"/></Button>

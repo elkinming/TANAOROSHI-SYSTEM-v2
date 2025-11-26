@@ -180,4 +180,63 @@ declare namespace API {
     detail: string = ""
     code: string = ""
   }
+
+  // Backend response type for user list
+  type BackendUserResponse = {
+    code: number;
+    message: string;
+    data: {
+      items: Array<{
+        id?: string;
+        name?: string;
+        lastname?: string;
+        age?: number;
+        country?: string;
+        home_address?: string;
+      }>;
+      total: number | null;
+      skip: number;
+      limit: number;
+    };
+    error: any;
+  };
+
+  type UserListItem = {
+    id?: string;
+    name?: string;
+    lastname?: string;
+    age?: number;
+    country?: string;
+    homeAddress?: string;
+  };
+
+  type BackendUserListItem = {
+    id?: string;
+    name?: string;
+    lastname?: string;
+    age?: number;
+    country?: string;
+    home_address?: string;
+  };
+
+  type UserList = {
+    data?: UserListItem[];
+    /** 列表的内容总数 */
+    total?: number;
+    success?: boolean;
+  };
+
+  type UserParams = {
+    name?: string;
+    lastname?: string;
+    searchKeyword?: string;
+  };
+
+  type CommitUserRecordError = {
+    record: UserListItem = {}
+    level: string = ""
+    message: string = ""
+    detail: string = ""
+    code: string = ""
+  }
 }

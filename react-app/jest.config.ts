@@ -17,5 +17,28 @@ export default async (): Promise<any> => {
       ...config.globals,
       localStorage: null,
     },
+    // Coverage configuration
+    collectCoverageFrom: [
+      'src/**/*.{ts,tsx}',
+      '!src/**/*.d.ts',
+      '!src/**/*.stories.{ts,tsx}',
+      '!src/**/__tests__/**',
+      '!src/**/__mocks__/**',
+      '!src/**/mock/**',
+      '!src/**/typings.d.ts',
+    ],
+    coverageDirectory: 'coverage',
+    coverageReporters: ['text', 'lcov', 'html', 'json', 'clover'],
+    coveragePathIgnorePatterns: [
+      '/node_modules/',
+      '/.umi/',
+      '/.umi-production/',
+      '/.umi-test/',
+      '/.umi-test-production/',
+      '/dist/',
+      '/coverage/',
+      '/mock/',
+      '/tests/',
+    ],
   };
 };
