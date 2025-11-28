@@ -239,4 +239,33 @@ declare namespace API {
     detail: string = ""
     code: string = ""
   }
+  type BackendIntegrityResponse = {
+    code: number,
+    message: string,
+    data: {
+      error_codes: string[],
+      error_messages: string[],
+      error_data: any[],
+      pk_detail: string,
+    },
+    error: any
+  }
+
+  type integrityResponse = {
+    code: number,
+    message: string,
+    data: {
+      errorCodes: string[],
+      errorMessages: string[]
+      errorData: any[]
+      pkDetail: string
+    },
+    error: any
+  }
+
+  type IntegrityCheckParams = {
+    pkCheck: boolean,
+    datatypeCheck: boolean,
+    timeLogicCheck: boolean,
+  }
 }

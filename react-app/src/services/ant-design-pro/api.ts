@@ -131,6 +131,21 @@ export async function deleteInventoryRecordArray(options?: API.InventoryListItem
   });
 }
 
+export async function backendIntegrityCheck(params: API.IntegrityCheckParams, options: API.InventoryListItem) {
+  const backendData = adaptInventoryItemToBackend(options);
+  const backendParams = {
+    pk_check: params.pkCheck,
+    datatype_check: params.datatypeCheck,
+    time_logic_check: params.timeLogicCheck,
+  };
+  return request<string[]>(`/inventory/record/check-integrity`, {
+    method: 'POST',
+    params: backendParams,
+    data: backendData,
+    requestType: 'json',
+  });
+}
+
 // ========== User Management API Functions ==========
 
 // Function for getting all users

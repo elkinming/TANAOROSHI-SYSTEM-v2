@@ -68,3 +68,18 @@ export function adaptInventoryResponse(backendResponse: API.BackendInventoryResp
   };
 }
 
+
+export function adaptIntegrityResponse(backendResponse: API.BackendIntegrityResponse): API.integrityResponse {
+  return {
+    code: backendResponse.code,
+    message: backendResponse.message,
+    data: {
+      errorCodes: backendResponse.data.error_codes,
+      errorMessages: backendResponse.data.error_messages,
+      errorData: backendResponse.data.error_data,
+      pkDetail: backendResponse.data.pk_detail,
+    },
+    error: backendResponse.error,
+  };
+}
+
