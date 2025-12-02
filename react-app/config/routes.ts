@@ -47,11 +47,11 @@ export default [
         name: 'item-v2',
         component: './search-list-v2',
       },
-      {
-        path: '/search/user',
-        name: 'user-master',
-        component: './user-master',
-      },
+      // {
+      //   path: '/search/user',
+      //   name: 'user-master',
+      //   component: './user-master',
+      // },
     ],
   },
   {

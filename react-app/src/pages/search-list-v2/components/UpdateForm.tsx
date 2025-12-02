@@ -139,30 +139,33 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
           <Col span={8}>
             <ProFormText rules={[
               { required: true, message: "必要" },
-              { max: 4, message: "最大4桁で入力してください" }
             ]} width="md" label="会社コード" name="companyCode"
               fieldProps={{
                 disabled: true,
+                maxLength: 4,
+                showCount: true,
               }}
             />
           </Col>
           <Col span={8}>
             <ProFormText rules={[
               { required: true, message: "必要" },
-              { max: 4, message: "最大4桁で入力してください" }
             ]} width="md" label="従来工場コード" name="previousFactoryCode"
               fieldProps={{
                 disabled: true,
+                maxLength: 4,
+                showCount: true,
               }}
             />
           </Col>
           <Col span={8}>
             <ProFormText rules={[
               { required: true, message: "必要" },
-              { max: 4, message: "最大4桁で入力してください" }
             ]} width="md" label="商品工場コード" name="productFactoryCode"
               fieldProps={{
                 disabled: true,
+                maxLength: 4,
+                showCount: true,
               }}
             />
           </Col>
@@ -191,7 +194,15 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
             <ProFormText width="md" label="商品工場名" name="productFactoryName" />
           </Col>
           <Col span={8}>
-            <ProFormText rules={[{ max: 4, message: "最大4桁で入力してください" }]} width="md" label="マテリアル部署コード" name="materialDepartmentCode" />
+            <ProFormText
+              rules={[]}
+              width="md"
+              label="マテリアル部署コード"
+              name="materialDepartmentCode"
+              fieldProps={{
+                maxLength: 4,
+                showCount: true,
+              }} />
           </Col>
           <Col span={8}>
             <ProFormText width="md" label="環境情報" name="environmentalInformation" />
@@ -202,7 +213,15 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
             <ProFormText width="md" label="認証フラグ" name="authenticationFlag" />
           </Col>
           <Col span={8}>
-            <ProFormText rules={[{ max: 4, message: "最大4桁で入力してください" }]} width="md" label="企業コード" name="groupCorporateCode" />
+            <ProFormText
+              rules={[]}
+              width="md"
+              label="企業コード"
+              name="groupCorporateCode"
+              fieldProps={{
+                maxLength: 4,
+                showCount: true,
+              }} />
           </Col>
           <Col span={8}>
             <ProFormText width="md" label="連携パターン" name="integrationPattern" />

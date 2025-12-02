@@ -144,8 +144,11 @@ const CreateForm: FC<CreateFormProps> = (props) => {
             <ProFormText
               rules={[
                 { required: true, message: getLocaleMessage('pages.searchList.validation.required') },
-                { max: 4, message: getLocaleMessage('pages.searchList.validation.max4Digits') },
               ]}
+              fieldProps={{
+                maxLength: 4,
+                showCount: true,
+              }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnCompanyCode')}
               name="companyCode"
@@ -155,8 +158,11 @@ const CreateForm: FC<CreateFormProps> = (props) => {
             <ProFormText
               rules={[
                 { required: true, message: getLocaleMessage('pages.searchList.validation.required') },
-                { max: 4, message: getLocaleMessage('pages.searchList.validation.max4Digits') },
               ]}
+              fieldProps={{
+                maxLength: 4,
+                showCount: true,
+              }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnPreviousFactoryCode')}
               name="previousFactoryCode"
@@ -166,8 +172,11 @@ const CreateForm: FC<CreateFormProps> = (props) => {
             <ProFormText
               rules={[
                 { required: true, message: getLocaleMessage('pages.searchList.validation.required') },
-                { max: 4, message: getLocaleMessage('pages.searchList.validation.max4Digits') },
               ]}
+              fieldProps={{
+                maxLength: 4,
+                showCount: true,
+              }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnProductFactoryCode')}
               name="productFactoryCode"
@@ -209,7 +218,11 @@ const CreateForm: FC<CreateFormProps> = (props) => {
           </Col>
           <Col span={8}>
             <ProFormText
-              rules={[{ max: 4, message: getLocaleMessage('pages.searchList.validation.max4Digits') }]}
+              rules={[]}
+              fieldProps={{
+                maxLength: 4,
+                showCount: true,
+              }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnMaterialDepartmentCode')}
               name="materialDepartmentCode"
@@ -233,7 +246,11 @@ const CreateForm: FC<CreateFormProps> = (props) => {
           </Col>
           <Col span={8}>
             <ProFormText
-              rules={[{ max: 4, message: getLocaleMessage('pages.searchList.validation.max4Digits') }]}
+              rules={[]}
+              fieldProps={{
+                maxLength: 4,
+                showCount: true,
+              }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnGroupCorporateCode')}
               name="groupCorporateCode"
