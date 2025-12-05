@@ -8,7 +8,7 @@ import {
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl, useRequest } from '@umijs/max';
 import { Button, Col, FormInstance, message, Row } from 'antd';
-import { useRef, useState, type FC } from 'react';
+import React, { useRef, useState, type FC } from 'react';
 import { updateInventoryRecord, backendIntegrityCheck } from '@/services/ant-design-pro/api';
 import { getUserErrors, getLabelMessage } from './utils';
 
@@ -19,7 +19,7 @@ interface UpdateFormProps {
 
 const UpdateForm: FC<UpdateFormProps> = (props) => {
   const { reload, inventoryItem } = props;
-  const formRef = useRef<FormInstance>();
+  const formRef = useRef<FormInstance>(null);
 
   const [messageApi, contextHolder] = message.useMessage();
   const [errorCodes, setErrorCodes] = useState<any[]>([]);
@@ -144,6 +144,12 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
                 disabled: true,
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    companyCode: trimmed
+                  });
+                }
               }}
             />
           </Col>
@@ -155,6 +161,12 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
                 disabled: true,
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    previousFactoryCode: trimmed
+                  });
+                }
               }}
             />
           </Col>
@@ -166,6 +178,12 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
                 disabled: true,
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    productFactoryCode: trimmed
+                  });
+                }
               }}
             />
           </Col>
@@ -186,12 +204,28 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
             />
           </Col>
           <Col span={8}>
-            <ProFormText width="md" label="従来工場名" name="previousFactoryName" />
+            <ProFormText width="md" label="従来工場名" name="previousFactoryName" fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    previousFactoryName: trimmed
+                  });
+                }
+              }} />
           </Col>
         </Row>
         <Row>
           <Col span={8}>
-            <ProFormText width="md" label="商品工場名" name="productFactoryName" />
+            <ProFormText width="md" label="商品工場名" name="productFactoryName" fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    productFactoryName: trimmed
+                  });
+                }
+              }} />
           </Col>
           <Col span={8}>
             <ProFormText
@@ -202,15 +236,37 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
               fieldProps={{
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    materialDepartmentCode: trimmed
+                  });
+                }
               }} />
           </Col>
           <Col span={8}>
-            <ProFormText width="md" label="環境情報" name="environmentalInformation" />
+            <ProFormText width="md" label="環境情報" name="environmentalInformation" fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    environmentalInformation: trimmed
+                  });
+                }
+              }} />
           </Col>
         </Row>
         <Row>
           <Col span={8}>
-            <ProFormText width="md" label="認証フラグ" name="authenticationFlag" />
+            <ProFormText width="md" label="認証フラグ" name="authenticationFlag" fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    authenticationFlag: trimmed
+                  });
+                }
+              }} />
           </Col>
           <Col span={8}>
             <ProFormText
@@ -221,15 +277,37 @@ const UpdateForm: FC<UpdateFormProps> = (props) => {
               fieldProps={{
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    groupCorporateCode: trimmed
+                  });
+                }
               }} />
           </Col>
           <Col span={8}>
-            <ProFormText width="md" label="連携パターン" name="integrationPattern" />
+            <ProFormText width="md" label="連携パターン" name="integrationPattern"fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    integrationPattern: trimmed
+                  });
+                }
+              }}  />
           </Col>
         </Row>
         <Row>
           <Col span={8}>
-            <ProFormText width="md" label="HULFTID" name="hulftid" />
+            <ProFormText width="md" label="HULFTID" name="hulftid"fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    hulftid: trimmed
+                  });
+                }
+              }}  />
           </Col>
         </Row>
       </ModalForm>

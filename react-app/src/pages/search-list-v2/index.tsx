@@ -908,7 +908,7 @@ const SearchListV2: React.FC = () => {
             onChange: (page) => {
               setCurrent(page);
             },
-            position: ['bottomRight'],
+            placement: ['bottomEnd'],
           }}
 
           recordCreatorProps={false}

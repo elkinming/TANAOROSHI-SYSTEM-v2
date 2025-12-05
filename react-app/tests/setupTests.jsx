@@ -69,3 +69,11 @@ Object.defineProperty(global.window.console, 'error', {
     errorLog(...rest);
   },
 });
+
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+global.ResizeObserver = ResizeObserver;

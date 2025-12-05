@@ -2,7 +2,7 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 import { adaptInventoryItemToBackend, adaptInventoryResponse } from './inventoryAdapters';
-import { adaptUserItemToBackend, adaptUserResponse } from './userAdapters';
+// import { adaptUserItemToBackend, adaptUserResponse } from './userAdapters';
 
 const URL = "/j0503015/batch/001"
 
@@ -148,87 +148,87 @@ export async function backendIntegrityCheck(params: API.IntegrityCheckParams, op
 
 // ========== User Management API Functions ==========
 
-// Function for getting all users
-export async function getAllUsers(
-  params: {
-    name?: string;
-    lastname?: string;
-    searchKeyword?: string;
-  },
-  options?: { [key: string]: any },
-) {
-  const backendParams = {
-    name: params?.name,
-    lastname: params?.lastname,
-    search_keyword: params?.searchKeyword,
-  };
+// // Function for getting all users
+// export async function getAllUsers(
+//   params: {
+//     name?: string;
+//     lastname?: string;
+//     searchKeyword?: string;
+//   },
+//   options?: { [key: string]: any },
+// ) {
+//   const backendParams = {
+//     name: params?.name,
+//     lastname: params?.lastname,
+//     search_keyword: params?.searchKeyword,
+//   };
 
-  const response = await request<API.BackendUserResponse>(`/user/list`, {
-    method: 'GET',
-    params: backendParams,
-    ...(options || {}),
-  });
+//   const response = await request<API.BackendUserResponse>(`/user/list`, {
+//     method: 'GET',
+//     params: backendParams,
+//     ...(options || {}),
+//   });
 
-  return adaptUserResponse(response);
-}
+//   return adaptUserResponse(response);
+// }
 
-// Function for creating a single user
-export async function addUserRecord(options?: API.UserListItem) {
-  const backendData = options ? adaptUserItemToBackend(options) : {};
+// // Function for creating a single user
+// export async function addUserRecord(options?: API.UserListItem) {
+//   const backendData = options ? adaptUserItemToBackend(options) : {};
 
-  return request<API.UserListItem>(`/user`, {
-    method: 'POST',
-    data: {
-      method: 'update',
-      ...backendData,
-    },
-    requestType: 'json',
-  });
-}
+//   return request<API.UserListItem>(`/user`, {
+//     method: 'POST',
+//     data: {
+//       method: 'update',
+//       ...backendData,
+//     },
+//     requestType: 'json',
+//   });
+// }
 
-// Function for updating a single user
-export async function updateUserRecord(options?: API.UserListItem) {
-  console.log(options);
-  const backendData = options ? adaptUserItemToBackend(options) : {};
+// // Function for updating a single user
+// export async function updateUserRecord(options?: API.UserListItem) {
+//   console.log(options);
+//   const backendData = options ? adaptUserItemToBackend(options) : {};
 
-  return request<API.UserListItem>(`/user`, {
-    method: 'PUT',
-    data: {
-      method: 'update',
-      ...backendData,
-    },
-    requestType: 'json',
-  });
-}
+//   return request<API.UserListItem>(`/user`, {
+//     method: 'PUT',
+//     data: {
+//       method: 'update',
+//       ...backendData,
+//     },
+//     requestType: 'json',
+//   });
+// }
 
 
-// Function for updating a batch of user records.
-// Body: record[]
-export async function updateUserRecordBatch(options?: API.UserListItem[]) {
-  const backendData = (options || []).map(item => adaptUserItemToBackend(item));
-  return request<API.UserListItem[]>(`/user/list`, {
-    method: 'PUT',
-    data: backendData,
-    requestType: 'json',
-  });
-}
+// // Function for updating a batch of user records.
+// // Body: record[]
+// export async function updateUserRecordBatch(options?: API.UserListItem[]) {
+//   const backendData = (options || []).map(item => adaptUserItemToBackend(item));
+//   return request<API.UserListItem[]>(`/user/list`, {
+//     method: 'PUT',
+//     data: backendData,
+//     requestType: 'json',
+//   });
+// }
 
-// Function for inserting multiple user records
-export async function insertUserRecordArray(options?: API.UserListItem[]) {
-  const backendData = (options || []).map(item => adaptUserItemToBackend(item));
-  return request<API.UserListItem[]>(`/user/list`, {
-    method: 'POST',
-    data: backendData,
-    requestType: 'json',
-  });
-}
+// // Function for inserting multiple user records
+// export async function insertUserRecordArray(options?: API.UserListItem[]) {
+//   const backendData = (options || []).map(item => adaptUserItemToBackend(item));
+//   return request<API.UserListItem[]>(`/user/list`, {
+//     method: 'POST',
+//     data: backendData,
+//     requestType: 'json',
+//   });
+// }
 
-// Function for deleting multiple user records
-export async function deleteUserRecordArray(options?: API.UserListItem[]) {
-  const backendData = (options || []).map(item => adaptUserItemToBackend(item));
-  return request<string[]>(`/user/list`, {
-    method: 'DELETE',
-    data: backendData,
-    requestType: 'json',
-  });
-}
+// // Function for deleting multiple user records
+// export async function deleteUserRecordArray(options?: API.UserListItem[]) {
+//   const backendData = (options || []).map(item => adaptUserItemToBackend(item));
+//   return request<string[]>(`/user/list`, {
+//     method: 'DELETE',
+//     data: backendData,
+//     requestType: 'json',
+//   });
+// }

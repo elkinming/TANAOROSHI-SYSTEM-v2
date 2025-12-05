@@ -8,7 +8,7 @@ import {
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl, useRequest } from '@umijs/max';
 import { Button, Col, FormInstance, message, Row } from 'antd';
-import { useRef, useState, type FC } from 'react';
+import React, { useRef, useState, type FC } from 'react';
 import { addInventoryRecord, backendIntegrityCheck } from '@/services/ant-design-pro/api';
 import { getUserErrors, getLabelMessage } from './utils';
 
@@ -18,7 +18,7 @@ interface CreateFormProps {
 
 const CreateForm: FC<CreateFormProps> = (props) => {
   const { reload } = props;
-  const formRef = useRef<FormInstance>();
+  const formRef = useRef<FormInstance>(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [errorCodes, setErrorCodes] = useState<any[]>([]);
   const [errorMessages, setErrorMessages] = useState<any[]>([]);
@@ -148,6 +148,12 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               fieldProps={{
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    companyCode: trimmed
+                  });
+                }
               }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnCompanyCode')}
@@ -162,6 +168,12 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               fieldProps={{
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    previousFactoryCode: trimmed
+                  });
+                }
               }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnPreviousFactoryCode')}
@@ -176,6 +188,12 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               fieldProps={{
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    productFactoryCode: trimmed
+                  });
+                }
               }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnProductFactoryCode')}
@@ -205,6 +223,15 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               width="md"
               label={getLocaleMessage('pages.searchList.columnPreviousFactoryName')}
               name="previousFactoryName"
+              fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    previousFactoryName: trimmed
+                  });
+                }
+              }}
             />
           </Col>
         </Row>
@@ -214,6 +241,15 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               width="md"
               label={getLocaleMessage('pages.searchList.columnProductFactoryName')}
               name="productFactoryName"
+              fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    productFactoryName: trimmed
+                  });
+                }
+              }}
             />
           </Col>
           <Col span={8}>
@@ -222,6 +258,12 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               fieldProps={{
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    materialDepartmentCode: trimmed
+                  });
+                }
               }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnMaterialDepartmentCode')}
@@ -233,6 +275,15 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               width="md"
               label={getLocaleMessage('pages.searchList.columnEnvironmentalInformation')}
               name="environmentalInformation"
+              fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    environmentalInformation: trimmed
+                  });
+                }
+              }}
             />
           </Col>
         </Row>
@@ -242,6 +293,15 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               width="md"
               label={getLocaleMessage('pages.searchList.columnAuthenticationFlag')}
               name="authenticationFlag"
+              fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    authenticationFlag: trimmed
+                  });
+                }
+              }}
             />
           </Col>
           <Col span={8}>
@@ -250,6 +310,12 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               fieldProps={{
                 maxLength: 4,
                 showCount: true,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 4);
+                  formRef.current?.setFieldsValue({
+                    groupCorporateCode: trimmed
+                  });
+                }
               }}
               width="md"
               label={getLocaleMessage('pages.searchList.columnGroupCorporateCode')}
@@ -261,6 +327,15 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               width="md"
               label={getLocaleMessage('pages.searchList.columnIntegrationPattern')}
               name="integrationPattern"
+              fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    integrationPattern: trimmed
+                  });
+                }
+              }}
             />
           </Col>
         </Row>
@@ -270,6 +345,15 @@ const CreateForm: FC<CreateFormProps> = (props) => {
               width="md"
               label={getLocaleMessage('pages.searchList.columnHulftid')}
               name="hulftid"
+              fieldProps={{
+                maxLength: 100,
+                onChange: (e) => {
+                  const trimmed = e.target.value.slice(0, 100);
+                  formRef.current?.setFieldsValue({
+                    hulftid: trimmed
+                  });
+                }
+              }}
             />
           </Col>
         </Row>
