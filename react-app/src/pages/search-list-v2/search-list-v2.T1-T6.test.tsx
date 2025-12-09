@@ -464,14 +464,11 @@ it('T0004: Check Search Functionality - should filter records based on search cr
       // Find search input and buttons
       // const searchInputs = container.querySelectorAll('input[placeholder*="入力してください"]');
       const searchInputs = within(searchWrapper!).getAllByPlaceholderText('入力してください', {exact: false});
-      console.log('Search Inputs found: ' + searchInputs.length );
       // const clearButton = screen.getByRole('button', { name: /ク リア/ });
       const clearButton = within(searchWrapper!).getByRole('button', { name: /クリア/, hidden: true });
       // const clearButton = container.querySelector('button[value="クリア"]');
-      console.log('Clear Button found');
       // Type search criteria
       fireEvent.change(searchInputs[0], { target: { value: 'COMP001' } });
-      console.log('Data input pushed');
       
       // Mock response after clear (should return all data)
       mockGetAllInventory.mockResolvedValue({
@@ -482,7 +479,6 @@ it('T0004: Check Search Functionality - should filter records based on search cr
 
       // Click clear button
       fireEvent.click(clearButton);
-      console.log('Clear button clicked');
 
       // Verify API was called without search parameters
       await waitFor(() => {

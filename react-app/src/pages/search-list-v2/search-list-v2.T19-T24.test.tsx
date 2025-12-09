@@ -64,6 +64,7 @@ describe('SearchListV2 Component', () => {
   const mockAddRecord = apiModule.addInventoryRecord as jest.Mock;
   const mockUpdateRecord = apiModule.updateInventoryRecord as jest.Mock;
   const mockUpdateMultipleRecord = apiModule.updateInventoryRecordBatch as jest.Mock;
+  const mockDeleteInventoryRecordArray = apiModule.deleteInventoryRecordArray as jest.Mock;
 
 
   beforeEach(() => {
@@ -145,7 +146,7 @@ it('T0019: Check 複数登録 functionality 保存 - It should make 2 calls to t
     const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
     expect(toolbar).toBeTruthy();
 
-    const multipleRegisterButton = await within(toolbar!).findByText(/複数登録/i);
+    const multipleRegisterButton = await within(toolbar!).findByText(/複数登録/i, {}, {timeout: 1000});
     expect(multipleRegisterButton).toBeTruthy();
 
     await act(async () => {
@@ -154,9 +155,9 @@ it('T0019: Check 複数登録 functionality 保存 - It should make 2 calls to t
 
     // check control buttons
 
-    const insertButton = await within(toolbar!).findByText(/新規登録/i);
+    const insertButton = await within(toolbar!).findByText(/新規登録/i, {}, {timeout: 1000});
     expect(insertButton).toBeTruthy();
-    const saveButton = await within(toolbar!).findByText(/保存/i);
+    const saveButton = await within(toolbar!).findByText(/保存/i, {}, {timeout: 1000});
     expect(saveButton).toBeTruthy();
 
     await act(async () => {
@@ -290,7 +291,7 @@ it('T0020: Check 複数登録 functionality キャンセル - It should exit the
     const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
     expect(toolbar).toBeTruthy();
 
-    const multipleRegisterButton = await within(toolbar!).findByText(/複数登録/i);
+    const multipleRegisterButton = await within(toolbar!).findByText(/複数登録/i, {}, {timeout: 1000});
     expect(multipleRegisterButton).toBeTruthy();
 
     await act(async () => {
@@ -299,9 +300,9 @@ it('T0020: Check 複数登録 functionality キャンセル - It should exit the
 
     // check control buttons
 
-    const insertButton = await within(toolbar!).findByText(/新規登録/i);
+    const insertButton = await within(toolbar!).findByText(/新規登録/i, {}, {timeout: 1000});
     expect(insertButton).toBeTruthy();
-    const cancelButton = await within(toolbar!).findByText(/キャンセル/i);
+    const cancelButton = await within(toolbar!).findByText(/キャンセル/i, {}, {timeout: 1000});
     expect(cancelButton).toBeTruthy();
 
     await act(async () => {
@@ -431,7 +432,7 @@ it('T0021: Check 複数削除 body structure - It should show the control button
     const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
     expect(toolbar).toBeTruthy();
 
-    const multipleDeleteButton = await within(toolbar!).findByText(/複数削除/i);
+    const multipleDeleteButton = await within(toolbar!).findByText(/複数削除/i, {}, {timeout: 1000});
     expect(multipleDeleteButton).toBeTruthy();
 
     await act(async () => {
@@ -441,15 +442,318 @@ it('T0021: Check 複数削除 body structure - It should show the control button
     // check control buttons
 
     await waitFor(async () => {
-      const insertButton = await within(toolbar!).findByText(/削除/i);
+      const insertButton = await within(toolbar!).findByText(/削除/i, {}, {timeout: 1000});
       expect(insertButton).toBeTruthy();
-      const cancelButton = await within(toolbar!).findByText(/キャンセル/i);
+      const cancelButton = await within(toolbar!).findByText(/キャンセル/i, {}, {timeout: 1000});
       expect(cancelButton).toBeTruthy();
       const checkbox = rows[1].querySelectorAll('input.ant-checkbox-input');
       expect(checkbox.length).toBe(1);
     }, { timeout: 1000})
 
 
+  }
+});
+
+it('T0022: Check 複数削除 functionality 削除 - It should make 2 calls to the API: delete multiple records and get all records', async () => {
+  const mockData = mockDataCreator(2);
+
+  // Mock the API responses
+  mockGetAllInventory.mockResolvedValue({
+    data: mockData,
+    success: true,
+    total: mockData.length,
+  });
+
+  mockDeleteInventoryRecordArray.mockResolvedValue({
+    success: true,
+    message: 'Records deleted successfully'
+  });
+
+  const { container } = renderWithIntl(React.createElement(SearchListV2), 'ja-JP');
+
+  // Wait for the table to load
+  let tableWrapper: HTMLElement | null = null;
+  await waitFor(() => {
+    tableWrapper = container.querySelector('.ant-table-wrapper');
+    expect(tableWrapper).toBeTruthy();
+  }, { timeout: 1000 });
+
+  // Verify initial API call
+  expect(mockGetAllInventory).toHaveBeenCalled();
+
+  if (tableWrapper) {
+    // Wait for the data to be loaded and rendered
+    await waitFor(() => {
+      const rows = within(tableWrapper!).queryAllByRole('row');
+      expect(rows.length).toBeGreaterThan(1);
+    }, { timeout: 1000 });
+
+    const rows = within(tableWrapper!).queryAllByRole('row');
+    
+    // Find and click the 複数削除 button
+    const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
+    expect(toolbar).toBeTruthy();
+
+    const multipleDeleteButton = await within(toolbar!).findByText(/複数削除/i, {}, {timeout: 1000});
+    expect(multipleDeleteButton).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.click(multipleDeleteButton);
+    });
+
+    // Check that checkboxes are visible and select them
+    await waitFor(async () => {
+      const checkboxes = rows[1].querySelectorAll('input.ant-checkbox-input');
+      expect(checkboxes.length).toBeGreaterThan(0);
+      
+      // Select all checkboxes
+      for (let i = 1; i < rows.length; i++) {
+        const checkbox = rows[i].querySelector('input.ant-checkbox-input');
+        await act(async () => {
+          fireEvent.click(checkbox!);
+        });
+      }
+    }, { timeout: 1000 });
+
+    // Find and click the 削除 button
+    const deleteButton = await within(toolbar!).findByText(/削除/i, {}, {timeout: 1000});
+    expect(deleteButton).toBeTruthy();
+    const cancelButton = within(toolbar!).queryByText(/キャンセル/i);
+    expect(cancelButton).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
+
+    // Verify the delete API was called with correct parameters
+    await waitFor(() => {
+      expect(mockDeleteInventoryRecordArray).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...mockData[0]
+          }),
+          expect.objectContaining({
+            ...mockData[1]
+          }),
+
+        ])
+      );
+      // Verify get all records was called after delete
+      expect(mockGetAllInventory).toHaveBeenCalledTimes(3);
+      
+      // Verify we exited the multiple delete mode
+      expect(cancelButton).not.toBeInTheDocument();
+    }, { timeout: 1000 });
+  }
+});
+
+it('T0023: Check 複数削除 functionality キャンセル - It should exit the 複数削除 mode and refresh the data', async () => {
+  const mockData = mockDataCreator(2);
+
+  // Mock the API responses
+  mockGetAllInventory.mockResolvedValue({
+    data: mockData,
+    success: true,
+    total: mockData.length,
+  });
+
+  const { container } = renderWithIntl(React.createElement(SearchListV2), 'ja-JP');
+
+  // Wait for the table to load
+  let tableWrapper: HTMLElement | null = null;
+  await waitFor(() => {
+    tableWrapper = container.querySelector('.ant-table-wrapper');
+    expect(tableWrapper).toBeTruthy();
+  }, { timeout: 1000 });
+
+  // Verify initial API call
+  expect(mockGetAllInventory).toHaveBeenCalled();
+
+  if (tableWrapper) {
+    // Wait for the data to be loaded and rendered
+    await waitFor(() => {
+      const rows = within(tableWrapper!).queryAllByRole('row');
+      expect(rows.length).toBeGreaterThan(1);
+    }, { timeout: 1000 });
+
+    const rows = within(tableWrapper!).queryAllByRole('row');
+    
+    // Find and click the 複数削除 button
+    const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
+    expect(toolbar).toBeTruthy();
+
+    const multipleDeleteButton = await within(toolbar!).findByText(/複数削除/i, {}, {timeout: 1000});
+    expect(multipleDeleteButton).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.click(multipleDeleteButton);
+    });
+
+    // Check that checkboxes are visible and select them
+    await waitFor(async () => {
+      const checkboxes = rows[1].querySelectorAll('input.ant-checkbox-input');
+      expect(checkboxes.length).toBeGreaterThan(0);
+      
+      // Select all checkboxes
+      for (let i = 1; i < rows.length; i++) {
+        const checkbox = rows[i].querySelector('input.ant-checkbox-input');
+        await act(async () => {
+          fireEvent.click(checkbox!);
+        });
+      }
+    }, { timeout: 1000 });
+
+    // Find and click the キャンセル button
+    const cancelButton = await within(toolbar!).findByText(/キャンセル/i, {}, {timeout: 1000});
+    expect(cancelButton).toBeTruthy();
+    const deleteButton = within(toolbar!).queryByText(/削除/i);
+    expect(deleteButton).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.click(cancelButton);
+    });
+
+    // Verify the delete API was NOT called
+    await waitFor(() => {
+      expect(mockDeleteInventoryRecordArray).not.toHaveBeenCalled();
+      
+      // Verify get all records was called again
+      expect(mockGetAllInventory).toHaveBeenCalledTimes(3);
+      
+      // Verify we exited the multiple delete mode
+      expect(deleteButton).not.toBeInTheDocument();
+      expect(cancelButton).not.toBeInTheDocument();
+    }, { timeout: 1000 });
+  }
+});
+
+it('T0024: Check 複数削除 functionality error handling 削除 - It should show error messages when deletion fails', async () => {
+  const mockData = mockDataCreator(2);
+
+  // Mock the API responses
+  mockGetAllInventory.mockResolvedValue({
+    data: mockData,
+    success: true,
+    total: mockData.length,
+  });
+
+  // Mock error response
+  const errorResponse = {
+    code: 400,
+    message: "工場マスタの一括削除中にエラーが発生しました",
+    data: null,
+    error: {
+      details: {
+        ok_records: [],
+        error_records: [
+          {
+            level: "E",
+            message: "Record not found",
+            detail: "A record with the specified primary key does not exist",
+            code: "NotFoundError",
+            record: {
+              company_code: "string",
+              previous_factory_code: "string",
+              product_factory_code: "string",
+              start_operation_date: "2025-12-09",
+              end_operation_date: "2025-12-09",
+              previous_factory_name: "string",
+              product_factory_name: "string",
+              material_department_code: "string",
+              environmental_information: "string",
+              authentication_flag: "string",
+              group_corporate_code: "string",
+              integration_pattern: "string",
+              hulftid: "string"
+            }
+          }
+        ]
+      }
+    }
+  };
+
+  mockDeleteInventoryRecordArray.mockRejectedValue({
+    response: {
+      data: errorResponse
+    }
+  });
+
+  const { container } = renderWithIntl(React.createElement(SearchListV2), 'ja-JP');
+
+  // Wait for the table to load
+  let tableWrapper: HTMLElement | null = null;
+  await waitFor(() => {
+    tableWrapper = container.querySelector('.ant-table-wrapper');
+    expect(tableWrapper).toBeTruthy();
+  }, { timeout: 1000 });
+
+  // Verify initial API call
+  expect(mockGetAllInventory).toHaveBeenCalled();
+
+  if (tableWrapper) {
+    // Wait for the data to be loaded and rendered
+    await waitFor(() => {
+      const rows = within(tableWrapper!).queryAllByRole('row');
+      expect(rows.length).toBeGreaterThan(1);
+    }, { timeout: 1000 });
+
+    const rows = within(tableWrapper!).queryAllByRole('row');
+    
+    // Find and click the 複数削除 button
+    const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
+    expect(toolbar).toBeTruthy();
+
+    const multipleDeleteButton = await within(toolbar!).findByText(/複数削除/i, {}, {timeout: 1000});
+    expect(multipleDeleteButton).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.click(multipleDeleteButton);
+    });
+
+    // Check that checkboxes are visible and select them
+    await waitFor(async () => {
+      const checkboxes = rows[1].querySelectorAll('input.ant-checkbox-input');
+      expect(checkboxes.length).toBeGreaterThan(0);
+      
+      // Select all checkboxes
+      for (let i = 1; i < rows.length; i++) {
+        const checkbox = rows[i].querySelector('input.ant-checkbox-input');
+        await act(async () => {
+          fireEvent.click(checkbox!);
+        });
+      }
+    }, { timeout: 1000 });
+
+    // Find and click the 削除 button
+    const deleteButton = await within(toolbar!).findByText(/削除/i, {}, {timeout: 1000});
+    expect(deleteButton).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
+
+    // Verify the delete API was called with correct parameters
+    await waitFor(() => {
+      expect(mockDeleteInventoryRecordArray).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...mockData[0]
+          }),
+          expect.objectContaining({
+            ...mockData[1]
+          }),
+
+        ])
+      );
+      
+      // Verify error message is displayed
+      const errorMessage = screen.getByText(/エラーがありました/i);
+      expect(errorMessage).toBeTruthy();
+      
+      // Verify we're still in delete mode
+      const cancelButton = within(toolbar!).queryByText(/キャンセル/i);
+      expect(cancelButton).toBeTruthy();
+    }, { timeout: 1000 });
   }
 });
 

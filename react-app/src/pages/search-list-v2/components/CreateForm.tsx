@@ -53,7 +53,7 @@ const CreateForm: FC<CreateFormProps> = (props) => {
 
     try {
       const response = await backendIntegrityCheck(params, formData);
-      console.log(response);
+      // console.log(response);
 
     } catch (error: any) {
       messageApi.error(getLocaleMessage('pages.searchList.create.error'));

@@ -136,7 +136,7 @@ const SearchListV2: React.FC = () => {
       await getDataSource();
 
     } catch (e: any) {
-      console.log(e.response.data);
+      // console.log(e.response.data);
       const rawErrorItems = e.response.data.error.details.error_records as API.CommitRecordError[];
       // Convert BackendInventoryListItem records to InventoryListItem
       const convertedErrorItems: API.CommitRecordError[] = rawErrorItems.map((errorItem) => ({
@@ -146,8 +146,8 @@ const SearchListV2: React.FC = () => {
       const errorItems = convertedErrorItems.filter(item => item.level === 'E' || item.level === 'W');
       const errorItemsWithIds = addIdsToErrorRecords(errorItems);
       setErrorResults(getUserErrors(errorItemsWithIds));
-      console.log(errorItems);
-      console.log(errorItemsWithIds);
+      // console.log(errorItems);
+      // console.log(errorItemsWithIds);
       messageApi.error(<FormattedMessage id="msg.error.updateFailed" />);
     }
   }
@@ -160,7 +160,7 @@ const SearchListV2: React.FC = () => {
       await getDataSource();
 
     } catch (e: any) {
-      console.log(e.response.data);
+      // console.log(e.response.data);
       const rawErrorItems = e.response.data.error.details.error_records as API.CommitRecordError[];
       // Convert BackendInventoryListItem records to InventoryListItem
       const convertedErrorItems: API.CommitRecordError[] = rawErrorItems.map((errorItem) => ({
@@ -170,8 +170,8 @@ const SearchListV2: React.FC = () => {
       const errorItems = convertedErrorItems.filter(item => item.level === 'E' || item.level === 'W');
       const errorItemsWithIds = addIdsToErrorRecords(errorItems);
       setErrorResults(getUserErrors(errorItemsWithIds));
-      console.log(errorItems);
-      console.log(errorItemsWithIds);
+      // console.log(errorItems);
+      // console.log(errorItemsWithIds);
       messageApi.error(<FormattedMessage id="msg.error.insertFailed" />);
     }
   }
@@ -186,7 +186,7 @@ const SearchListV2: React.FC = () => {
       await getDataSource();
 
     } catch (e: any) {
-      console.log(e.response.data);
+      // console.log(e.response.data);
       const rawErrorItems = e.response.data.error.details.error_records as API.CommitRecordError[];
       // Convert BackendInventoryListItem records to InventoryListItem
       const convertedErrorItems: API.CommitRecordError[] = rawErrorItems.map((errorItem) => ({
@@ -837,7 +837,7 @@ const SearchListV2: React.FC = () => {
             type: 'checkbox',
             selectedRowKeys,
             onChange: (selectedKeys) => {
-              console.log('selectedRowKeys changed: ', selectedKeys);
+              // console.log('selectedRowKeys changed: ', selectedKeys);
               setSelectedRowKeys(selectedKeys);
               const newSelectedDataSource: any[] = [];
               dataSource.find((record) => {
