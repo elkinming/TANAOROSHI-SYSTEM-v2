@@ -241,7 +241,7 @@ const SearchListV2: React.FC = () => {
 
 
   const downloadData = () => {
-    console.log(dataSource);
+    // console.log(dataSource);
     if (dataSource.length === 0) return;
 
     // Function for mapping between DB Column Names and Excel Column Names
@@ -269,7 +269,7 @@ const SearchListV2: React.FC = () => {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: '' });
-
+        // console.log(JSON.stringify(jsonData));
         // Function for mapping between Excel Column Names and DB Column Names
         const normalizedData = jsonData.map((row: any) => {
           const newRow: Record<string, any> = {};

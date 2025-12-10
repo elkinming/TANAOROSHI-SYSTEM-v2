@@ -5,6 +5,7 @@ import { ConfigProvider } from 'antd';
 import jaJP from 'antd/es/locale/ja_JP';
 import SearchListV2 from './index';
 import * as apiModule from '@/services/ant-design-pro/api';
+import * as XLSX from 'xlsx';
 import jaJPMessages from '@/locales/ja-JP';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
@@ -28,11 +29,44 @@ jest.mock('xlsx', () => ({
     json_to_sheet: jest.fn(),
     book_new: jest.fn(),
     book_append_sheet: jest.fn(),
-    sheet_to_json: jest.fn(),
+    sheet_to_json: jest.fn(()=>{
+      return [{"会社コード":"str4","従来工場コード":"stri","商品工場コード":"stri","運用開始日":"2025-11-21","運用終了日":"2025-11-21","従来工場名":"string","商品工場名":"string","マテリアル部署コード":"stri","環境情報":"string","認証フラグ":"string","企業コード":"stri","連携パターン":"string","HULFTID":"string"}]
+    }),
   },
   writeFile: jest.fn(),
-  read: jest.fn(),
+  read: jest.fn(()=>{
+    return {SheetNames: [], Sheets:[]}
+  }),
 }));
+
+(global as any).FileReader = jest.fn(() => ({
+  onload: null,
+  readAsArrayBuffer: jest.fn(function () {
+    this.onload({
+      target: { result: new ArrayBuffer(16) }
+    });
+  }),
+}));
+
+jest.mock("antd", () => {
+  const actual = jest.requireActual("antd");
+
+  const messageApi = {
+    success: jest.fn(),
+    error: jest.fn(),
+    warning: jest.fn(),
+    info: jest.fn(),
+    loading: jest.fn(),
+  };
+
+  return {
+    ...actual,
+    message: {
+      ...messageApi,
+      useMessage: () => [messageApi, null],
+    },
+  };
+});
 
 const mockDataCreator = (desiredElements: number) => {
   let mockDataArray = [];
@@ -65,6 +99,7 @@ describe('SearchListV2 Component', () => {
   const mockUpdateRecord = apiModule.updateInventoryRecord as jest.Mock;
   const mockUpdateMultipleRecord = apiModule.updateInventoryRecordBatch as jest.Mock;
   const mockDeleteInventoryRecordArray = apiModule.deleteInventoryRecordArray as jest.Mock;
+  const mockCheckIntegrity = apiModule.backendIntegrityCheck as jest.Mock;
 
 
   beforeEach(() => {
@@ -478,6 +513,294 @@ it('T0026: Check 複数更新 functionality error handling 保存 - It should sh
     const errorMessage2 = screen.getByText(/PK重複/i);
     expect(errorMessage2).toBeTruthy();
   }, { timeout: 1000 });
+});
+
+it('T0027: Check ダウンロード functionality - It should call the the XLSX library with the information of the record that is on the table.', async () => {
+  const mockData = mockDataCreator(1);
+
+  // Mock initial data
+  mockGetAllInventory.mockResolvedValue({
+    data: mockData,
+    success: true,
+    total: mockData.length,
+  });
+
+  const { container } = renderWithIntl(React.createElement(SearchListV2), 'ja-JP');
+
+  // Wait for the table to load
+  let tableWrapper: HTMLElement | null = null;
+  await waitFor(() => {
+    tableWrapper = container.querySelector('.ant-table-wrapper');
+    expect(tableWrapper).toBeTruthy();
+  }, { timeout: 1000 });
+
+  // Find and click the 複数更新 button
+  const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
+  expect(toolbar).toBeTruthy();
+
+  const downloadButton = await within(toolbar!).findByText(/ダウンロード/i, {}, {timeout: 1000});
+  expect(downloadButton).toBeTruthy();
+
+  await act(async () => {
+    fireEvent.click(downloadButton);
+  });
+
+  expect(XLSX.utils.json_to_sheet).toHaveBeenCalledTimes(1);
+  expect(XLSX.utils.book_new).toHaveBeenCalledTimes(1);
+  expect(XLSX.utils.book_append_sheet).toHaveBeenCalledTimes(1);
+  expect(XLSX.writeFile).toHaveBeenCalledTimes(1);
+
+});
+
+it('T0028: Check アップロード functionality - It should call the the XLSX library', async () => {
+  const mockData: any[] = [];
+
+  // Mock initial data
+  mockGetAllInventory.mockResolvedValue({
+    data: mockData,
+    success: true,
+    total: mockData.length,
+  });
+
+  const { container } = renderWithIntl(React.createElement(SearchListV2), 'ja-JP');
+
+  // Wait for the table to load
+  let tableWrapper: HTMLElement | null = null;
+  await waitFor(() => {
+    tableWrapper = container.querySelector('.ant-table-wrapper');
+    expect(tableWrapper).toBeTruthy();
+  }, { timeout: 1000 });
+
+  // Find and click the 複数更新 button
+  const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
+  expect(toolbar).toBeTruthy();
+
+  const uploadButton = await within(toolbar!).findByText(/アップロード/i, {}, {timeout: 1000});
+  expect(uploadButton).toBeTruthy();
+
+  const file = new File(["123"], "test.xlsx", {
+    type: "application/vnd.ms-excel",
+  });
+
+  const spanInput = toolbar?.querySelector("span.ant-upload");
+  const input = spanInput?.querySelector("input");
+  expect(input).toBeTruthy();
+
+  await act(async ()=>{
+    fireEvent.change(input!, {
+      target: { files: [file] }
+    });
+  })
+
+  expect(XLSX.read).toHaveBeenCalledTimes(1);
+  expect(XLSX.utils.sheet_to_json).toHaveBeenCalledTimes(1);
+
+});
+
+it('T0029: Check 新規登録 form error handling - It should show the error list and stay in the form view', async () => {
+   // Mock initial data
+  const initialMockData:any[] = [];
+
+  // Mock API responses
+  mockGetAllInventory.mockResolvedValue({
+    data: initialMockData,
+    success: true,
+    total: initialMockData.length,
+  });
+
+
+  mockCheckIntegrity.mockRejectedValue({
+    
+    response:{
+      data: {
+        code: 400,
+        message: "整合性チェックが正常に完了しませんでした",
+        data: {
+          error_codes: [
+            "TIME_LOGIC_CHECK_INVALID"
+          ],
+          error_messages: [
+            "運用開始日が運用終了日より後です"
+          ],
+          pk_detail: "stri / stri / stri / 2025-12-10 / 2025-12-10",
+          error_data: [
+            {
+              pk_conflicted: "stri / stri / stri / 2025-12-10 / 2025-12-10"
+            }
+          ]
+        },
+        error: null
+      }
+    }
+    
+  });
+  mockAddRecord.mockResolvedValue({
+    data: { success: true, message: 'Record added successfully' }
+  });
+
+  const { container } = renderWithIntl(React.createElement(SearchListV2), 'ja-JP');
+
+  // Wait for initial load
+  await waitFor(() => {
+    const tableWrapper = container.querySelector('.ant-table-wrapper');
+    expect(tableWrapper).toBeTruthy();
+  }, { timeout: 1000 });
+
+  // Find and click the 新規登録 button
+  const toolbar = container.querySelector('.ant-pro-table-list-toolbar') as HTMLElement | null;
+  expect(toolbar).toBeTruthy();
+
+  if (toolbar) {
+    const newButton = within(toolbar).getByRole('button', { name: /新規登録/ });
+    await act(async () => {
+      fireEvent.click(newButton);
+    });
+
+    // Wait for the modal to appear
+    let modal: HTMLElement | null = null;
+    await waitFor(() => {
+      modal = document.querySelector('.ant-modal');
+      expect(modal).toBeTruthy();
+    }, { timeout: 1000 });
+
+    if (!modal) {
+      throw new Error('Modal did not appear');
+    }
+
+    const modalContent = within(modal);
+
+    // Fill in the form with valid data
+    const formFields = {
+      '会社コード': 'TEST',
+      '従来工場コード': 'FACT',
+      '商品工場コード': 'PROD',
+      '運用開始日': '2023-01-01',
+      '運用終了日': '2024-01-01',
+    };
+
+    // Fill in all form fields
+    for (const [label, value] of Object.entries(formFields)) {
+      const formItem = await waitFor(() =>
+        modalContent.getByText(label).closest('.ant-form-item')
+      );
+      expect(formItem).toBeTruthy();
+
+      if (formItem) {
+        const input = within(formItem as HTMLElement).getByRole('textbox') as HTMLInputElement;
+        await act(async () => {
+          fireEvent.change(input, { target: { value } });
+          fireEvent.blur(input); // Trigger validation
+        });
+      }
+    }
+
+    // Find and click the 登録 button
+    const submitButton = await waitFor(() =>
+      modalContent.getByRole('button', { name: /登 録/ })
+    );
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    // Verify API calls were made in the correct order
+    await waitFor(() => {
+      // 1. Check integrity API call
+      expect(mockCheckIntegrity).toHaveBeenCalledTimes(1);
+      expect(mockCheckIntegrity).toHaveBeenCalledWith(
+        expect.objectContaining({
+          datatypeCheck: true,
+          pkCheck: true,
+          timeLogicCheck: true
+        }),
+        expect.objectContaining({
+          companyCode: "TEST",
+          previousFactoryCode: "FACT",
+          productFactoryCode: "PROD"
+        })
+      );
+
+      const errorMessage = screen.findByText(/運用開始日が運用終了日より後です/i, {}, {timeout: 1000});
+      expect(errorMessage).toBeTruthy();
+
+    });
+
+  }
+
+});
+
+it('T0030: Check table column filter functionality - It should re order the rows ascending', async () => {
+  const mockData = mockDataCreator(3);
+
+  // Mock initial data
+  mockGetAllInventory.mockResolvedValue({
+    data: mockData,
+    success: true,
+    total: mockData.length,
+  });
+
+  const { container } = renderWithIntl(React.createElement(SearchListV2), 'ja-JP');
+
+  // Wait for the table to load
+  let tableWrapper: HTMLElement | null = null;
+  await waitFor(() => {
+    tableWrapper = container.querySelector('.ant-table-wrapper');
+    expect(tableWrapper).toBeTruthy();
+  }, { timeout: 1000 });
+
+  // Wait for the rows to be editable
+  await waitFor(() => {
+    const rows = within(tableWrapper!).queryAllByRole('row');
+    expect(rows.length).toBeGreaterThan(3);
+  }, {timeout: 1000});
+
+  // 最初のオーダー
+  const rows = within(tableWrapper!).queryAllByRole('row');
+  const companyCodeLabel1 = await within(rows[1]).findAllByText(mockData[0].companyCode, {}, {timeout: 1000})
+  expect(companyCodeLabel1).toBeTruthy();
+  const companyCodeLabel2 = await within(rows[2]).findAllByText(mockData[1].companyCode, {}, {timeout: 1000})
+  expect(companyCodeLabel2).toBeTruthy();
+  const companyCodeLabel3 = await within(rows[3]).findAllByText(mockData[2].companyCode, {}, {timeout: 1000})
+  expect(companyCodeLabel3).toBeTruthy();
+
+  const filterButtons = rows[0].querySelectorAll('span.ant-table-column-sorter');
+  expect(filterButtons[0]).toBeTruthy();
+
+  await act(async () => {
+    fireEvent.click(filterButtons[0]);
+  });
+
+  // 同じオーダー
+  await waitFor(async () => {
+    const rows = within(tableWrapper!).queryAllByRole('row');
+    expect(rows.length).toBeGreaterThan(3);
+    
+    const companyCodeLabel1 = await within(rows[1]).findAllByText(mockData[0].companyCode, {}, {timeout: 3000})
+    expect(companyCodeLabel1).toBeTruthy();
+    const companyCodeLabel2 = await within(rows[2]).findAllByText(mockData[1].companyCode, {}, {timeout: 3000})
+    expect(companyCodeLabel2).toBeTruthy();
+    const companyCodeLabel3 = await within(rows[3]).findAllByText(mockData[2].companyCode, {}, {timeout: 3000})
+    expect(companyCodeLabel3).toBeTruthy();
+
+  }, { timeout: 10000 });
+
+  await act(async () => {
+    fireEvent.click(filterButtons[0]);
+  });
+
+  //　違うオーダー
+  await waitFor(async () => {
+    const rows = within(tableWrapper!).queryAllByRole('row');
+    expect(rows.length).toBeGreaterThan(3);
+    
+    const companyCodeLabel1 = await within(rows[1]).findAllByText(mockData[2].companyCode, {}, {timeout: 3000})
+    expect(companyCodeLabel1).toBeTruthy();
+    const companyCodeLabel2 = await within(rows[2]).findAllByText(mockData[1].companyCode, {}, {timeout: 3000})
+    expect(companyCodeLabel2).toBeTruthy();
+    const companyCodeLabel3 = await within(rows[3]).findAllByText(mockData[0].companyCode, {}, {timeout: 3000})
+    expect(companyCodeLabel3).toBeTruthy();
+
+  }, { timeout: 10000 });
+
 });
 
 })
